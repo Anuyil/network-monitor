@@ -4,6 +4,7 @@ import sqlite3
 class Database:
     def __init__(self, path):
         self.con = sqlite3.connect(path)
+        self.con.execute("PRAGMA journal_mode=WAL")
         self.con.execute("""
             CREATE TABLE IF NOT EXISTS packets (
                 id        INTEGER PRIMARY KEY,

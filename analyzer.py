@@ -1,5 +1,6 @@
 import queue
 import threading
+import logging
 import socket
 import psutil
 from scapy.layers.l2 import Ether
@@ -8,6 +9,7 @@ from database import Database
 import analysis
 import procmap
 
+log = logging.getLogger(__name__)
 
 class Analyzer:
     def __init__(self, q: queue.Queue, db_path = "test_db.db") -> None:
@@ -42,7 +44,7 @@ class Analyzer:
                 try:
                     info = self._handle(iface, ts , buf)
                 except Exception as e:      # un pacchetto malformato non deve uccidere il thread
-                                    print(f"[analyzer] errore: {e}")
+                                    log.error(f"[analyzer] errore: {e}")
                                     continue
                 if info is not None:
                     #print(f"{info['iface']} {info['src']} {info['dst']} {info['proto']}")
@@ -50,7 +52,7 @@ class Analyzer:
 
         finally:
                 db.close()
-                print("\nClosing db...")
+                log.info("\nClosing db...")
 
 
     def _handle(self, iface, ts, buf):
@@ -59,7 +61,7 @@ class Analyzer:
             try:
                 analysis.get_dns(pkt, self.dns_names)
             except Exception as e:
-                print(f"[dns] {type(e).__name__}: {e}")
+                log.error(f"[dns] {type(e).__name__}: {e}")
         info = analysis.parse(iface, ts, pkt, len(buf))
         if info is None:
             return None

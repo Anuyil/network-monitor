@@ -1,5 +1,8 @@
 import queue
 from monitor import Monitor
+import logging
+
+log = logging.getLogger(__name__)
 
 class registryMonitor:
     def __init__(self) -> None:
@@ -39,4 +42,4 @@ class registryMonitor:
     def stop_all(self):
         for iface in self.monitors:
             self.stop_interface(iface)
-            print(f"\nClosed interface {iface}")
+            log.info(f"\nClosed interface {iface}")

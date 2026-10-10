@@ -1,7 +1,10 @@
 import threading
+import logging
 import queue
 from pylibpcap.base import Sniff
 from pylibpcap.exception import LibpcapError
+
+log = logging.getLogger(__name__)
 
 class Monitor:
     def __init__(self, iface, filters, count, promisc, out_file, timeout, queue) -> None:
@@ -34,7 +37,7 @@ class Monitor:
         if self._thread is not None:
             self._thread.join(timeout=5)
             if self._thread.is_alive():
-                print(f"[{self.iface}] il thread non si è fermato")
+                log.info(f"[{self.iface}] il thread non si è fermato")
                 return   # non dichiarare fermo
         self.running = False
 
@@ -53,10 +56,10 @@ class Monitor:
                 #print(f"[{self.iface}] len={plen} t={t}")
 
         except LibpcapError as e:
-            print(e)
+            log.error(e)
 
         finally:
             if self.sniffobj is not None:
                 stats = self.sniffobj.stats()
-                print(f"[{self.iface}] {stats.capture_cnt} packets captured")
+                log.info(f"[{self.iface}] {stats.capture_cnt} packets captured")
             self.running = False
