@@ -1,4 +1,8 @@
 __pycache__/
 .python-versions
-.pcap
+.venv/
+*.pcap
+*.db
+*.log
 contest.md
+.DS_Store
