@@ -6,7 +6,7 @@ class registryMonitor:
         self.monitors = {}
         self.queue = queue.Queue()
 
-    def add_interface(self, iface, filters = '', count = -1, promisc = 1, out_file = ''):
+    def add_interface(self, iface, filters = '', count = -1, promisc = 1, out_file = '', timeout = 500):
         if iface in self.monitors:
             return
 
@@ -16,6 +16,7 @@ class registryMonitor:
             count = count,
             promisc = promisc,
             out_file = out_file,
+            timeout = timeout,
             queue = self.queue
         )
 
@@ -38,3 +39,4 @@ class registryMonitor:
     def stop_all(self):
         for iface in self.monitors:
             self.stop_interface(iface)
+            print(f"\nClosed interface {iface}")

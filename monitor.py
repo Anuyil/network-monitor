@@ -4,7 +4,7 @@ from pylibpcap.base import Sniff
 from pylibpcap.exception import LibpcapError
 
 class Monitor:
-    def __init__(self, iface, filters = '', count = -1, promisc = 1, out_file = '', timeout = 500, queue = None) -> None:
+    def __init__(self, iface, filters, count, promisc, out_file, timeout, queue) -> None:
         self.iface = iface
         self.filters = filters
         self.count = count

@@ -1,8 +1,6 @@
-from ast import While
 import time
 from analyzer import Analyzer
 from registry import registryMonitor
-
 
 def main():
     print("=== Netowrk Monitor Daemon ===\n")
@@ -20,6 +18,7 @@ def main():
         print("\nstop...")
         registry.stop_all()
         analyzer.stop()
+
 
 if __name__ == "__main__":
     main()
