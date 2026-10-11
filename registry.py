@@ -1,45 +1,52 @@
 import queue
+
 from monitor import Monitor
-import logging
 
-log = logging.getLogger(__name__)
 
-class registryMonitor:
-    def __init__(self) -> None:
+class Registry:
+    """Possiede la coda condivisa e un Monitor per interfaccia.
+    Non conosce i default di cattura: li decide Monitor."""
+
+    def __init__(self):
         self.monitors = {}
         self.queue = queue.Queue()
 
-    def add_interface(self, iface, filters = '', count = -1, promisc = 1, out_file = '', timeout = 500):
-        if iface in self.monitors:
-            return
+    def _get(self, iface):
+        m = self.monitors.get(iface)
+        if m is None:
+            raise ValueError(f"interfaccia {iface} non aggiunta")
+        return m
 
-        self.monitors[iface] = Monitor(
-            iface = iface,
-            filters = filters,
-            count = count,
-            promisc = promisc,
-            out_file = out_file,
-            timeout = timeout,
-            queue = self.queue
-        )
+    def add_interface(self, iface, **kwargs):
+        if iface not in self.monitors:
+            self.monitors[iface] = Monitor(iface, self.queue, **kwargs)
 
     def start_interface(self, iface):
-        self.monitors[iface].start()
+        self._get(iface).start()
 
     def stop_interface(self, iface):
-        self.monitors[iface].stop()
+        self._get(iface).stop()
 
-    def remove_interfare(self, iface):
-        monitor = self.monitors.pop(iface, None)
+    def toggle(self, iface):
+        if iface not in self.monitors:
+            self.add_interface(iface)
+        if self.monitors[iface].running:
+            self.stop_interface(iface)
+        else:
+            self.start_interface(iface)
 
-        if monitor is not None:
-            monitor.stop()
+    def remove_interface(self, iface):
+        m = self.monitors.pop(iface, None)
+        if m is not None:
+            m.stop()
+
+    def status(self):
+        return {i: m.running for i, m in self.monitors.items()}
 
     def start_all(self):
-        for iface in self.monitors:
+        for iface in list(self.monitors):
             self.start_interface(iface)
 
     def stop_all(self):
-        for iface in self.monitors:
+        for iface in list(self.monitors):
             self.stop_interface(iface)
-            log.info(f"\nClosed interface {iface}")

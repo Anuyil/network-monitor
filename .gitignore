@@ -6,3 +6,5 @@ __pycache__/
 *.log
 contest.md
 .DS_Store
+intel/
+.python-version

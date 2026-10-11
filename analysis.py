@@ -1,10 +1,11 @@
 import socket
 import time
+
 import psutil
 from scapy.layers.dns import DNS, DNSRR
 from scapy.layers.inet import IP, TCP, UDP
 
-MIN_TTL = 60   # secondi minimi di validità di una risposta DNS
+MIN_TTL = 60
 
 
 def local_ipv4():
@@ -26,7 +27,7 @@ def parse(iface, ts, pkt, length):
     return info
 
 
-def get_dns(pkt, names):
+def learn_dns(pkt, names):
     if DNS not in pkt or not pkt[DNS].qr:
         return
 
@@ -37,11 +38,9 @@ def get_dns(pkt, names):
     for rr in pkt[DNS].an:
         name = rr.rrname.decode().rstrip(".")
         if rr.type == 5:                    # CNAME
-            target = rr.rdata.decode().rstrip(".")
-            aliases[target] = name
+            aliases[rr.rdata.decode().rstrip(".")] = name
         elif rr.type == 1:                  # A
             a_records.append((name, rr.rdata, rr.ttl))
-        rr = rr.payload
 
     for name, ip, ttl in a_records:
         chain = {name}
